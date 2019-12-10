@@ -1,0 +1,39 @@
+{
+  "name": "@open-wc/auto-define",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Allows to auto define custom elements scoping them",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wc/open-wc.git",
+    "directory": "packages/auto-define"
+  },
+  "author": "open-wc",
+  "homepage": "https://github.com/open-wc/open-wc/",
+  "scripts": {
+    "prepublishOnly": "../../scripts/insert-header.js"
+  },
+  "files": [
+    "*.d.ts",
+    "*.js",
+    "src"
+  ],
+  "keywords": [
+    "lit-html",
+    "lit-element",
+    "web components",
+    "utils",
+    "helpers"
+  ],
+  "peerDependencies": {
+    "lit-element": "^2.2.1"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^2.4.2",
+    "lit-element": "^2.0.1"
+  },
+  "module": "index.js"
+}
