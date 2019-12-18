@@ -25,31 +25,21 @@ npm i --save @open-wc/auto-define
 
 ## How it works
 
-In order to use this feature, you must create an `ScopedCustomElementRegistry`. It's a good practice
-to create just one `ScopedCustomElementRegistry` per package.
+In order to use this feature just import the `autoDefine` and `html` functions from
+`@open-wc/auto-define` and use them in the following way.
 
 ```js
-// ./registry.js
-import { createScopedCustomElementRegistry } from '@open-wc/auto-define';
-
-export const registry = createScopedCustomElementRegistry();
-```
-
-Now you can use the registry to auto define those custom elements that your component uses.
-
-```js
-import { LitElement } from 'lit-element';
-import { css, html } from '@open-wc/auto-define'; // <-- import the css and html functions
-import { registry } from './registry.js'; // <-- import the scoped registry
+import { css, LitElement } from 'lit-element';
+import { autoDefine, html } from '@open-wc/auto-define'; // <-- import the autoDefine and html functions
 import MyButton from './MyButton.js'; // <-- import your dependency class
 import MyPanel from './MyPanel.js'; // <-- import your dependency class
 
-const [myButton, myPanel] = registry.autoDefine(MyButton, MyPanel);
+const [myButton, myPanel] = autoDefine(MyButton, MyPanel); // <-- auto define the components that you are going to use
 
 export default class MyElement extends LitElement {
   static get styles() {
     return css`
-      ${myPanel} {
+      .my-panel {
         padding: 10px;
         background-color: grey;
       }
@@ -63,7 +53,7 @@ export default class MyElement extends LitElement {
   }
 
   render() {
-    return html`<${myPanel}><${myButton}>${this.text}</${myButton}></${myPanel}>`; // <-- use them just like other parameters
+    return html`<${myPanel} class="my-panel"><${myButton}>${this.text}</${myButton}></${myPanel}>`; // <-- use them just like other parameters
   }
 }
 ```
@@ -72,11 +62,9 @@ export default class MyElement extends LitElement {
 necessary) for each of them. In case those classes were previously defined then it's going to return
 the previous unique tag.
 
-Note that this proposal
-
-Then, the `css` and `html` functions provided by `@open-wc/auto-define` are going to detect those
-tags and they are going to transform the template literal into another one with those tags resolved
-and prepared to be processed by `lit-element` and `lit-html`.
+Then, the `html` function provided by `@open-wc/auto-define` are going to detect those tags and they
+are going to transform the template literal into another one with those tags resolved and prepared
+to be processed by `lit-html`.
 
 `<${myButton}>${this.text}</${myButton}>` --> `<my-button-3>${this.text}</my-button-3>`
 
@@ -89,11 +77,10 @@ in the registry.
 ```js
 // MyElement.js
 import { LitElement } from 'lit-element';
-import { html } from '@open-wc/auto-define'; // <-- import the css and html functions
-import { registry } from './registry.js'; // <-- import the scoped registry
+import { autoDefine, html } from '@open-wc/auto-define'; // <-- import the autoDefine and html functions
 import MyButton from './MyButton.js'; // your custom element depends on it
 
-const [myButton] = registry.autoDefine(MyButton);
+const [myButton] = autoDefine(MyButton);
 
 export default class MyElement extends LitElement {
   render() {
@@ -104,7 +91,7 @@ export default class MyElement extends LitElement {
 }
 ```
 
-## When not to use
+## When not to use it
 
 In the case you are developing a custom element that doesn't depends on other custom elements then
 you shouldn't use it. The reason of that is because there is a little performance penalty on using
@@ -122,6 +109,74 @@ export default class MyButton extends LitElement {
   }
 }
 ```
+
+Performance can vary on each machine, but percentages seems to be stable. [Tachometer](https://github.com/Polymer/tachometer)
+has been used to measure the performance.
+
+Those are some examples obtained.
+
+```bash
+Running benchmarks
+
+[==========================================================] done
+
+⠋ Auto-sample 40 (timeout in 9m47s)
+
+┌─────────────┬──────────────┐
+│     Version │ <none>       │
+├─────────────┼──────────────┤
+│     Browser │ chrome       │
+│             │ 79.0.3945.88 │
+├─────────────┼──────────────┤
+│ Sample size │ 90           │
+└─────────────┴──────────────┘
+
+┌─────────────┬────────────┬───────────────────┬─────────────────┬─────────────────┐
+│ Benchmark   │ Bytes      │          Avg time │  vs lit-element │  vs auto-define │
+├─────────────┼────────────┼───────────────────┼─────────────────┼─────────────────┤
+│ lit-element │ 185.99 KiB │ 39.17ms - 40.71ms │                 │          faster │
+│             │            │                   │        -        │         1% - 6% │
+│             │            │                   │                 │ 0.24ms - 2.46ms │
+├─────────────┼────────────┼───────────────────┼─────────────────┼─────────────────┤
+│ auto-define │ 190.46 KiB │ 40.49ms - 42.09ms │          slower │                 │
+│             │            │                   │         1% - 6% │        -        │
+│             │            │                   │ 0.24ms - 2.46ms │                 │
+└─────────────┴────────────┴───────────────────┴─────────────────┴─────────────────┘
+```
+
+```bash
+Running benchmarks
+
+[==========================================================] done
+
+
+
+┌─────────────┬─────────┐
+│     Version │ <none>  │
+├─────────────┼─────────┤
+│     Browser │ firefox │
+│             │ 71.0    │
+├─────────────┼─────────┤
+│ Sample size │ 50      │
+└─────────────┴─────────┘
+
+┌─────────────┬────────────┬───────────────────┬─────────────────┬─────────────────┐
+│ Benchmark   │ Bytes      │          Avg time │  vs lit-element │  vs auto-define │
+├─────────────┼────────────┼───────────────────┼─────────────────┼─────────────────┤
+│ lit-element │ 185.99 KiB │ 26.58ms - 27.46ms │                 │          faster │
+│             │            │                   │        -        │         3% - 9% │
+│             │            │                   │                 │ 0.74ms - 2.78ms │
+├─────────────┼────────────┼───────────────────┼─────────────────┼─────────────────┤
+│ auto-define │ 190.46 KiB │ 27.86ms - 29.70ms │          slower │                 │
+│             │            │                   │        3% - 10% │        -        │
+│             │            │                   │ 0.74ms - 2.78ms │                 │
+└─────────────┴────────────┴───────────────────┴─────────────────┴─────────────────┘
+```
+
+In order to run the benchmarks from your machine you must execute `npx tachometer --config packages/auto-define/shack.json`
+from the `open-wc` folder.
+
+Editing `packages/auto-define/shack.json` you can configure in which browser you want to run the benchmarks.
 
 ## Special thanks
 

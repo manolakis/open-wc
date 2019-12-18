@@ -29,11 +29,13 @@
     "helpers"
   ],
   "peerDependencies": {
-    "lit-element": "^2.2.1"
+    "lit-element": "^2.0.1"
   },
   "devDependencies": {
     "@open-wc/testing": "^2.4.2",
-    "lit-element": "^2.0.1"
+    "chromedriver": "^79.0.0",
+    "clang-format": "^1.2.4",
+    "tachometer": "^0.4.4"
   },
   "module": "index.js"
 }

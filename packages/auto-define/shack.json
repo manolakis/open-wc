@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/tachometer/config.schema.json",
+  "timeout": 10,
+  "benchmarks": [
+    {
+      "browser": "chrome",
+      "expand": [
+        {
+          "name": "lit-element",
+          "url": "packages/auto-define/performance/lit-element/shack"
+        },
+        {
+          "name": "auto-define",
+          "url": "packages/auto-define/performance/auto-define/shack"
+        }
+      ]
+    }
+  ]
+}
